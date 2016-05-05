@@ -3,10 +3,10 @@ CloudFormation templates for potential Team Now lesson modules focusing on Syste
 
 Templates:
 
-VPCTemplate.json: Defines a Multi-AZ VPC with 2 public subnets and 2 private subnets.
-WebAppv1.json: Single EC2 instance running a simple PHP web app
-WebAppv2.json: Multi-AZ LAMP stack
-WebAppv3.json: Deploys CloudWatch Logs Agent in ASG LaunchConfiguration
+* VPCTemplate.json: Defines a Multi-AZ VPC with 2 public subnets and 2 private subnets.
+* WebAppv1.json: Single EC2 instance running a simple PHP web app
+* WebAppv2.json: Multi-AZ LAMP stack
+* WebAppv3.json: Deploys CloudWatch Logs Agent in ASG LaunchConfiguration
 
 Future TODO:
 
