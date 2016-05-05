@@ -1,0 +1,672 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  
+  "Description" : "AWS CloudFormation Cross-Stack Reference Sample Template: Demonstrates how to reference resources from a different stack. This template provisions an EC2 instance in an EC2 Security Group provisioned in a different stack. **WARNING** This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.",
+
+  "Parameters": {
+    "NetworkStackName": {
+      "Description": "Name of an active CloudFormation stack that contains the networking resources, such as the subnet and security group, that will be used in this stack.",
+      "Type": "String",
+      "MinLength" : 1,
+      "MaxLength" : 255,
+      "AllowedPattern" : "^[a-zA-Z][-a-zA-Z0-9]*$",
+      "Default" : "sampleNetwork"
+    },
+    
+    "KeyName": {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "ConstraintDescription" : "must be the name of an existing EC2 KeyPair.",
+      "Default": "FirstKeyPair.pem"
+    },
+    "InstanceType": {
+      "Description": "WebServer EC2 instance type",
+      "Type": "String",
+      "Default": "t2.micro",
+      "AllowedValues": [
+        "t1.micro",
+        "t2.micro",
+        "t2.small",
+        "t2.medium",
+        "m1.small",
+        "m1.medium",
+        "m1.large",
+        "m1.xlarge",
+        "m2.xlarge",
+        "m2.2xlarge",
+        "m2.4xlarge",
+        "m3.medium",
+        "m3.large",
+        "m3.xlarge",
+        "m3.2xlarge",
+        "c1.medium",
+        "c1.xlarge",
+        "c3.large",
+        "c3.xlarge",
+        "c3.2xlarge",
+        "c3.4xlarge",
+        "c3.8xlarge",
+        "c4.large",
+        "c4.xlarge",
+        "c4.2xlarge",
+        "c4.4xlarge",
+        "c4.8xlarge",
+        "g2.2xlarge",
+        "r3.large",
+        "r3.xlarge",
+        "r3.2xlarge",
+        "r3.4xlarge",
+        "r3.8xlarge",
+        "i2.xlarge",
+        "i2.2xlarge",
+        "i2.4xlarge",
+        "i2.8xlarge",
+        "d2.xlarge",
+        "d2.2xlarge",
+        "d2.4xlarge",
+        "d2.8xlarge",
+        "hi1.4xlarge",
+        "hs1.8xlarge",
+        "cr1.8xlarge",
+        "cc2.8xlarge",
+        "cg1.4xlarge"
+      ],
+      "ConstraintDescription": "must be a valid EC2 instance type."
+    },
+    "SSHLocation": {
+      "Description": "The IP address range that can be used to SSH to the EC2 instances",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "0.0.0.0/0",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+    }
+  },
+
+  "Mappings": {
+    "AWSInstanceType2Arch": {
+      "t1.micro": {
+        "Arch": "PV64"
+      },
+      "t2.micro": {
+        "Arch": "HVM64"
+      },
+      "t2.small": {
+        "Arch": "HVM64"
+      },
+      "t2.medium": {
+        "Arch": "HVM64"
+      },
+      "m1.small": {
+        "Arch": "PV64"
+      },
+      "m1.medium": {
+        "Arch": "PV64"
+      },
+      "m1.large": {
+        "Arch": "PV64"
+      },
+      "m1.xlarge": {
+        "Arch": "PV64"
+      },
+      "m2.xlarge": {
+        "Arch": "PV64"
+      },
+      "m2.2xlarge": {
+        "Arch": "PV64"
+      },
+      "m2.4xlarge": {
+        "Arch": "PV64"
+      },
+      "m3.medium": {
+        "Arch": "HVM64"
+      },
+      "m3.large": {
+        "Arch": "HVM64"
+      },
+      "m3.xlarge": {
+        "Arch": "HVM64"
+      },
+      "m3.2xlarge": {
+        "Arch": "HVM64"
+      },
+      "c1.medium": {
+        "Arch": "PV64"
+      },
+      "c1.xlarge": {
+        "Arch": "PV64"
+      },
+      "c3.large": {
+        "Arch": "HVM64"
+      },
+      "c3.xlarge": {
+        "Arch": "HVM64"
+      },
+      "c3.2xlarge": {
+        "Arch": "HVM64"
+      },
+      "c3.4xlarge": {
+        "Arch": "HVM64"
+      },
+      "c3.8xlarge": {
+        "Arch": "HVM64"
+      },
+      "c4.large": {
+        "Arch": "HVM64"
+      },
+      "c4.xlarge": {
+        "Arch": "HVM64"
+      },
+      "c4.2xlarge": {
+        "Arch": "HVM64"
+      },
+      "c4.4xlarge": {
+        "Arch": "HVM64"
+      },
+      "c4.8xlarge": {
+        "Arch": "HVM64"
+      },
+      "g2.2xlarge": {
+        "Arch": "HVMG2"
+      },
+      "r3.large": {
+        "Arch": "HVM64"
+      },
+      "r3.xlarge": {
+        "Arch": "HVM64"
+      },
+      "r3.2xlarge": {
+        "Arch": "HVM64"
+      },
+      "r3.4xlarge": {
+        "Arch": "HVM64"
+      },
+      "r3.8xlarge": {
+        "Arch": "HVM64"
+      },
+      "i2.xlarge": {
+        "Arch": "HVM64"
+      },
+      "i2.2xlarge": {
+        "Arch": "HVM64"
+      },
+      "i2.4xlarge": {
+        "Arch": "HVM64"
+      },
+      "i2.8xlarge": {
+        "Arch": "HVM64"
+      },
+      "d2.xlarge": {
+        "Arch": "HVM64"
+      },
+      "d2.2xlarge": {
+        "Arch": "HVM64"
+      },
+      "d2.4xlarge": {
+        "Arch": "HVM64"
+      },
+      "d2.8xlarge": {
+        "Arch": "HVM64"
+      },
+      "hi1.4xlarge": {
+        "Arch": "HVM64"
+      },
+      "hs1.8xlarge": {
+        "Arch": "HVM64"
+      },
+      "cr1.8xlarge": {
+        "Arch": "HVM64"
+      },
+      "cc2.8xlarge": {
+        "Arch": "HVM64"
+      }
+    },
+    "AWSInstanceType2NATArch": {
+      "t1.micro": {
+        "Arch": "NATPV64"
+      },
+      "t2.micro": {
+        "Arch": "NATHVM64"
+      },
+      "t2.small": {
+        "Arch": "NATHVM64"
+      },
+      "t2.medium": {
+        "Arch": "NATHVM64"
+      },
+      "m1.small": {
+        "Arch": "NATPV64"
+      },
+      "m1.medium": {
+        "Arch": "NATPV64"
+      },
+      "m1.large": {
+        "Arch": "NATPV64"
+      },
+      "m1.xlarge": {
+        "Arch": "NATPV64"
+      },
+      "m2.xlarge": {
+        "Arch": "NATPV64"
+      },
+      "m2.2xlarge": {
+        "Arch": "NATPV64"
+      },
+      "m2.4xlarge": {
+        "Arch": "NATPV64"
+      },
+      "m3.medium": {
+        "Arch": "NATHVM64"
+      },
+      "m3.large": {
+        "Arch": "NATHVM64"
+      },
+      "m3.xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "m3.2xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "c1.medium": {
+        "Arch": "NATPV64"
+      },
+      "c1.xlarge": {
+        "Arch": "NATPV64"
+      },
+      "c3.large": {
+        "Arch": "NATHVM64"
+      },
+      "c3.xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "c3.2xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "c3.4xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "c3.8xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "c4.large": {
+        "Arch": "NATHVM64"
+      },
+      "c4.xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "c4.2xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "c4.4xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "c4.8xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "g2.2xlarge": {
+        "Arch": "NATHVMG2"
+      },
+      "r3.large": {
+        "Arch": "NATHVM64"
+      },
+      "r3.xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "r3.2xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "r3.4xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "r3.8xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "i2.xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "i2.2xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "i2.4xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "i2.8xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "d2.xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "d2.2xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "d2.4xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "d2.8xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "hi1.4xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "hs1.8xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "cr1.8xlarge": {
+        "Arch": "NATHVM64"
+      },
+      "cc2.8xlarge": {
+        "Arch": "NATHVM64"
+      }
+    },
+    "AWSRegionArch2AMI": {
+      "us-east-1": {
+        "PV64": "ami-5fb8c835",
+        "HVM64": "ami-60b6c60a",
+        "HVMG2": "ami-e998ea83"
+      },
+      "us-west-2": {
+        "PV64": "ami-d93622b8",
+        "HVM64": "ami-f0091d91",
+        "HVMG2": "ami-315f4850"
+      },
+      "us-west-1": {
+        "PV64": "ami-56ea8636",
+        "HVM64": "ami-d5ea86b5",
+        "HVMG2": "ami-943956f4"
+      },
+      "eu-west-1": {
+        "PV64": "ami-95e33ce6",
+        "HVM64": "ami-bff32ccc",
+        "HVMG2": "ami-83fd23f0"
+      },
+      "eu-central-1": {
+        "PV64": "ami-794a5915",
+        "HVM64": "ami-bc5b48d0",
+        "HVMG2": "ami-ba1a09d6"
+      },
+      "ap-northeast-1": {
+        "PV64": "ami-393c1957",
+        "HVM64": "ami-383c1956",
+        "HVMG2": "ami-08e5c166"
+      },
+      "ap-southeast-1": {
+        "PV64": "ami-34bd7a57",
+        "HVM64": "ami-c9b572aa",
+        "HVMG2": "ami-5a15d239"
+      },
+      "ap-southeast-2": {
+        "PV64": "ami-ced887ad",
+        "HVM64": "ami-48d38c2b",
+        "HVMG2": "ami-0c1a446f"
+      },
+      "sa-east-1": {
+        "PV64": "ami-7d15ad11",
+        "HVM64": "ami-6817af04",
+        "HVMG2": "NOT_SUPPORTED"
+      },
+      "cn-north-1": {
+        "PV64": "ami-18ac6575",
+        "HVM64": "ami-43a36a2e",
+        "HVMG2": "NOT_SUPPORTED"
+      }
+    }
+  },
+
+  "Resources" : {
+    "WebServerInstance": {  
+      "Type" : "AWS::EC2::Instance",
+       "Metadata": {
+        "AWS::CloudFormation::Init": {
+            "config": {
+                "packages": {
+                    "yum": {
+                        "httpd": [],
+                        "php": []
+                    }
+                },
+            "files" : {
+              "/var/www/html/index.php": {
+                "content": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            "<html>\n",
+                        "  <head>\n",
+                        "    <title>AWS CloudFormation PHP Sample</title>\n",
+                        "    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-1\">\n",
+                        "  </head>\n",
+                        "  <body>\n",
+                        "    <h1>Welcome to the AWS CloudFormation PHP Sample</h1>\n",
+                        "    <p/>\n",
+                        "    <?php\n",
+                        "      // Print out the current data and tie\n",
+                        "      print \"The Current Date and Time is: <br/>\";\n",
+                        "      print date(\"g:i A l, F j Y.\");\n",
+                        "    ?>\n",
+                        "    <p/>\n",
+                        "    <?php\n",
+                        "      // Setup a handle for CURL\n",
+                        "      $curl_handle=curl_init();\n",
+                        "      curl_setopt($curl_handle,CURLOPT_CONNECTTIMEOUT,2);\n",
+                        "      curl_setopt($curl_handle,CURLOPT_RETURNTRANSFER,1);\n",
+                        "      // Get the hostname of the intance from the instance metadata\n",
+                        "      curl_setopt($curl_handle,CURLOPT_URL,'http://169.254.169.254/latest/meta-data/public-hostname');\n",
+                        "      $hostname = curl_exec($curl_handle);\n",
+                        "      if (empty($hostname))\n",
+                        "      {\n",
+                        "        print \"Sorry, for some reason, we got no hostname back <br />\";\n",
+                        "      }\n",
+                        "      else\n",
+                        "      {\n",
+                        "        print \"Server = \" . $hostname . \"<br />\";\n",
+                        "      }\n",
+                        "      // Get the instance-id of the intance from the instance metadata\n",
+                        "      curl_setopt($curl_handle,CURLOPT_URL,'http://169.254.169.254/latest/meta-data/instance-id');\n",
+                        "      $instanceid = curl_exec($curl_handle);\n",
+                        "      if (empty($instanceid))\n",
+                        "      {\n",
+                        "        print \"Sorry, for some reason, we got no instance id back <br />\";\n",
+                        "      }\n",
+                        "      else\n",
+                        "      {\n",
+                        "        print \"EC2 instance-id = \" . $instanceid . \"<br />\";\n",
+                        "      }?>\n",
+                        "    <h2>PHP Information</h2>\n",
+                        "    <p/>\n",
+                        "    <?php\n",
+                        "      phpinfo();\n",
+                        "    ?>\n",
+                        "  </body>\n",
+                        "</html>\n"
+                        ]
+                    ]
+                },
+                "mode": "000600",
+                "owner": "apache",
+                "group": "apache"
+              },
+
+              "/etc/cfn/cfn-hup.conf" : {
+                "content" : { "Fn::Join" : ["", [
+                  "[main]\n",
+                  "stack=", { "Ref" : "AWS::StackId" }, "\n",
+                  "region=", { "Ref" : "AWS::Region" }, "\n"
+                ]]},
+                "mode"    : "000400",
+                "owner"   : "root",
+                "group"   : "root"
+              },
+
+              "/etc/cfn/hooks.d/cfn-auto-reloader.conf" : {
+                "content": { "Fn::Join" : ["", [
+                  "[cfn-auto-reloader-hook]\n",
+                  "triggers=post.update\n",
+                  "path=Resources.WebServerInstance.Metadata.AWS::CloudFormation::Init\n",
+                  "action=/opt/aws/bin/cfn-init -v ",
+                  "         --stack ", { "Ref" : "AWS::StackName" },
+                  "         --resource WebServerInstance ",
+                  "         --region ", { "Ref" : "AWS::Region" }, "\n",
+                  "runas=root\n"
+                ]]}
+              }
+            },
+
+            "services" : {
+              "sysvinit" : {
+                "httpd"    : { "enabled" : "true", "ensureRunning" : "true" },
+                "cfn-hup" : { "enabled" : "true", "ensureRunning" : "true", 
+                              "files" : ["/etc/cfn/cfn-hup.conf", "/etc/cfn/hooks.d/cfn-auto-reloader.conf"]}
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+        "InstanceType" : { "Ref" : "InstanceType" },
+        "NetworkInterfaces" : [{
+          "GroupSet" : [{
+            "Ref": "InstanceSecurityGroup"
+          }],
+          "AssociatePublicIpAddress" : "true",
+          "DeviceIndex"              : "0",
+          "DeleteOnTermination"      : "true",
+          "SubnetId"                 : { "Fn::GetAtt": [ "NetworkInfo", "SubnetAPublic" ] }
+        }],
+        "KeyName" : { "Ref" : "KeyName" },
+        "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ],
+        "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
+             "#!/bin/bash -xe\n",
+             "yum update -y aws-cfn-bootstrap\n",
+
+             "# Install the files and packages from the metadata\n",
+             "/opt/aws/bin/cfn-init -v ",
+             "         --stack ", { "Ref" : "AWS::StackName" },
+             "         --resource WebServerInstance ",
+             "         --region ", { "Ref" : "AWS::Region" }, "\n",
+
+             "# Signal the status from cfn-init\n",
+             "/opt/aws/bin/cfn-signal -e $? ",
+             "         --stack ", { "Ref" : "AWS::StackName" },
+             "         --resource WebServerInstance ",
+             "         --region ", { "Ref" : "AWS::Region" }, "\n"
+        ]]}}        
+      },
+      "CreationPolicy" : {
+        "ResourceSignal" : {
+          "Timeout" : "PT5M"
+        }
+      }
+    },
+    "InstanceSecurityGroup": {
+    "Type": "AWS::EC2::SecurityGroup",
+    "Properties": {
+    "GroupDescription" : "Enable HTTP and SSH",
+    "VpcId" : { 
+          "Fn::GetAtt" : [
+            "NetworkInfo",
+            "VPC"
+          ] 
+    },
+    "SecurityGroupIngress": [
+      { "IpProtocol": "tcp", "FromPort": "22", "ToPort": "22", "CidrIp": { "Ref": "SSHLocation" } },
+      { "IpProtocol": "tcp", "FromPort": "80", "ToPort": "80", "CidrIp" : "0.0.0.0/0" }
+    ]
+    }
+    },
+    "NetworkInfo": {
+      "Type": "Custom::NetworkInfo",
+      "Properties": {
+        "ServiceToken": { "Fn::GetAtt" : ["LookupStackOutputs", "Arn"] },
+        "StackName": {
+          "Ref": "NetworkStackName"
+        }
+      }
+    },
+
+    "LookupStackOutputs": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Handler": "index.handler",
+        "Role": { "Fn::GetAtt" : ["LambdaExecutionRole", "Arn"] },
+        "Code": {
+          "ZipFile":  { "Fn::Join": ["\n", [
+            "var response = require('cfn-response');",
+            "exports.handler = function(event, context) {",
+            "    console.log('REQUEST RECEIVED:\\n', JSON.stringify(event));",
+            "    if (event.RequestType == 'Delete') {",
+            "        response.send(event, context, response.SUCCESS);",
+            "        return;",
+            "    }",
+            "    var stackName = event.ResourceProperties.StackName;",
+            "    var responseData = {};",
+            "    if (stackName) {",
+            "        var aws = require('aws-sdk');",
+            "        var cfn = new aws.CloudFormation();",
+            "        cfn.describeStacks({StackName: stackName}, function(err, data) {",
+            "            if (err) {",
+            "                responseData = {Error: 'DescribeStacks call failed'};",
+            "                console.log(responseData.Error + ':\\n', err);",
+            "                response.send(event, context, response.FAILED, responseData);",
+            "            }",
+            "            else {",
+            "                data.Stacks[0].Outputs.forEach(function(output) {",
+            "                    responseData[output.OutputKey] = output.OutputValue;",
+            "                });",
+            "                response.send(event, context, response.SUCCESS, responseData);",
+            "            }",
+            "        });",
+            "    } else {",
+            "        responseData = {Error: 'Stack name not specified'};",
+            "        console.log(responseData.Error);",
+            "        response.send(event, context, response.FAILED, responseData);",
+            "    }",
+            "};"
+          ]]}
+        },        
+        "Runtime": "nodejs",
+        "Timeout": "30"
+      }
+    },
+ 
+    "LambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{
+              "Effect": "Allow",
+              "Principal": {"Service": ["lambda.amazonaws.com"]},
+              "Action": ["sts:AssumeRole"]
+          }]
+        },
+        "Path": "/",
+        "Policies": [{
+          "PolicyName": "root",
+          "PolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [{
+                "Effect": "Allow",
+                "Action": ["logs:CreateLogGroup","logs:CreateLogStream","logs:PutLogEvents"],
+                "Resource": "arn:aws:logs:*:*:*"
+            },
+            {
+                "Effect": "Allow",
+                "Action": ["cloudformation:DescribeStacks"],
+                "Resource": "*"
+            }]
+          }
+        }]
+      }
+    }
+  },
+
+  "Outputs" : {
+    "URL" : {
+      "Description" : "URL of the sample website",
+      "Value" :  { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "WebServerInstance", "PublicDnsName" ]}]]}
+    }
+  }
+}
