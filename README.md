@@ -7,6 +7,7 @@ Templates:
 * WebAppv1.json: Single EC2 instance running a simple PHP web app
 * WebAppv2.json: Multi-AZ LAMP stack
 * WebAppv3.json: Deploys CloudWatch Logs Agent in ASG LaunchConfiguration
+* three_tier_webapp.json: Complete, functional version of broken_template.json, using an nginx reverse proxy webserver, an app server hosting Wordpress and a MySQL db
 
 Future TODO:
 
