@@ -8,6 +8,10 @@ Templates:
 * WebAppv2.json: Multi-AZ LAMP stack
 * WebAppv3.json: Deploys CloudWatch Logs Agent in ASG LaunchConfiguration
 * three_tier_webapp.json: Complete, functional version of broken_template.json, using an nginx reverse proxy webserver, an app server hosting Wordpress and a MySQL db
+* broken_template.json: three_tier_webapp.json with the subsequent errors: 
+  * hardcoded ami's for us-west-2
+  * subnets are not specified for ASG's (only AZs)
+  * reverse proxy sends traffic to an EC2 instance instead of the internal ELB
 
 Future TODO:
 
