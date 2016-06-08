@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "AWS CloudFormation Sample Template WordPress_Multi_AZ: WordPress is web software you can use to create a beautiful website or blog. This template installs a highly-available, scalable WordPress deployment using a multi-az Amazon RDS database instance for storage. It demonstrates using the AWS CloudFormation bootstrap scripts to deploy WordPress. **WARNING** This template creates an Amazon EC2 instance, an Elastic Load Balancer and an Amazon RDS database instance. You will be billed for the AWS resources used if you create a stack from this template.",
+  "Description" : "This AWS CloudFormation template creates a three-tier WordPress web application hosted across mulitple Availability Zones.",
 
   "Parameters" : {
 
@@ -600,35 +600,12 @@
       }
     },
 
-    "WebServerGroup" : {
-      "Type" : "AWS::AutoScaling::AutoScalingGroup",
-      "Properties" : {
-        "AvailabilityZones" : { "Fn::GetAZs" : "" }, 
-        "LaunchConfigurationName" : { "Ref" : "WebLaunchConfig" },
-        "MinSize" : "1",
-        "MaxSize" : "5",
-        "DesiredCapacity" : { "Ref" : "WebServerCapacity" },
-        "LoadBalancerNames" : [ { "Ref" : "WebELB" } ]
-      },
-      "CreationPolicy" : {
-        "ResourceSignal" : {
-          "Timeout" : "PT15M"
-        }
-      },
-      "UpdatePolicy": {
-        "AutoScalingRollingUpdate": {
-          "MinInstancesInService": "1",
-          "MaxBatchSize": "1",
-          "PauseTime" : "PT15M",
-          "WaitOnResourceSignals": "true"
-        }
-      }
-    },
-
      "WebLaunchConfig": {
          "Type": "AWS::AutoScaling::LaunchConfiguration",
-         "DependsOn": ["AppServerGroup"],
          "Metadata" : {
+            "Comment1" : "Change the ImageId from a hardcoded value for us-west-2 by using the Fn::FindInMap function",
+            "Comment2" : "Replace the AvailabilityZones property with the VPCZoneIdentifier for the WebServerGroup resource and specify SubnetAPublic and SubnetBPublic.",
+            "Comment2" : "Change the proxy_pass url from the app server autoscaling group to the app server ELB DNS using the Fn::GetAtt function.",
             "AWS::CloudFormation::Init" : {
                 "config" : {
                 "packages" : {
@@ -711,6 +688,31 @@
           }
         },
 
+    "WebServerGroup" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "AvailabilityZones" : { "Fn::GetAZs" : "" }, 
+        "LaunchConfigurationName" : { "Ref" : "WebLaunchConfig" },
+        "MinSize" : "1",
+        "MaxSize" : "5",
+        "DesiredCapacity" : { "Ref" : "WebServerCapacity" },
+        "LoadBalancerNames" : [ { "Ref" : "WebELB" } ]
+      },
+      "CreationPolicy" : {
+        "ResourceSignal" : {
+          "Timeout" : "PT15M"
+        }
+      },
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinInstancesInService": "1",
+          "MaxBatchSize": "1",
+          "PauseTime" : "PT15M",
+          "WaitOnResourceSignals": "true"
+        }
+      }
+    },
+
     "AppELB" : {
       "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
       "Properties" : {
@@ -767,40 +769,12 @@
       }
     },
 
-    "AppServerGroup" : {
-      "Type" : "AWS::AutoScaling::AutoScalingGroup",
-      "Properties" : {
-        "VPCZoneIdentifier" : [{ 
-          "Ref" : "SubnetAPrivate"
-        }, 
-        {
-          "Ref" : "SubnetBPrivate"
-        }],
-        "LaunchConfigurationName" : { "Ref" : "AppLaunchConfig" },
-        "MinSize" : "1",
-        "MaxSize" : "5",
-        "DesiredCapacity" : { "Ref" : "WebServerCapacity" },
-        "LoadBalancerNames" : [ { "Ref" : "AppELB" } ]
-      },
-      "CreationPolicy" : {
-        "ResourceSignal" : {
-          "Timeout" : "PT15M"
-        }
-      },
-      "UpdatePolicy": {
-        "AutoScalingRollingUpdate": {
-          "MinInstancesInService": "1",
-          "MaxBatchSize": "1",
-          "PauseTime" : "PT15M",
-          "WaitOnResourceSignals": "true"
-        }
-      }
-    },
-
     "AppLaunchConfig": {
       "Type" : "AWS::AutoScaling::LaunchConfiguration",
       "DependsOn": "DBInstance",
       "Metadata" : {
+        "Comment" : "Change the ImageId from a hardcoded value for us-west-2 by using the Fn::FindInMap function.",
+        "Comment2" : "Replace the AvailabilityZones property with the VPCZoneIdentifier for the AppServerGroup resource and specify SubnetAPrivate and SubnetBPrivate.",
         "AWS::CloudFormation::Init" : {
           "configSets" : {
             "wordpress_install" : ["install_cfn", "install_wordpress" ]
@@ -902,6 +876,31 @@
                        "         --resource AppServerGroup ",
                        "         --region ", { "Ref" : "AWS::Region" }, "\n"
         ]]}}
+      }
+    },
+
+    "AppServerGroup" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "AvailabilityZones" : { "Fn::GetAZs" : "" },
+        "LaunchConfigurationName" : { "Ref" : "AppLaunchConfig" },
+        "MinSize" : "1",
+        "MaxSize" : "5",
+        "DesiredCapacity" : { "Ref" : "WebServerCapacity" },
+        "LoadBalancerNames" : [ { "Ref" : "AppELB" } ]
+      },
+      "CreationPolicy" : {
+        "ResourceSignal" : {
+          "Timeout" : "PT15M"
+        }
+      },
+      "UpdatePolicy": {
+        "AutoScalingRollingUpdate": {
+          "MinInstancesInService": "1",
+          "MaxBatchSize": "1",
+          "PauseTime" : "PT15M",
+          "WaitOnResourceSignals": "true"
+        }
       }
     },
 
