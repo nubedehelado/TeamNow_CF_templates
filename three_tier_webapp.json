@@ -632,7 +632,6 @@
 
      "WebLaunchConfig": {
          "Type": "AWS::AutoScaling::LaunchConfiguration",
-         "DependsOn": ["AppServerGroup"],
          "Metadata" : {
             "AWS::CloudFormation::Init" : {
                 "config" : {
