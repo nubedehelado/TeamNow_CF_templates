@@ -949,10 +949,7 @@
         "MasterUsername"    : { "Ref" : "DBUser" },
         "MasterUserPassword": { "Ref" : "DBPassword" },
         "DBInstanceClass"   : { "Ref" : "DBClass" },
-        "AllocatedStorage"  : { "Ref" : "DBAllocatedStorage" },
-        "DBSecurityGroups": [{
-          "Ref": "DBSecurityGroup"
-        }]
+        "AllocatedStorage"  : { "Ref" : "DBAllocatedStorage" }
       }
     }
   },
