@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "AWS CloudFormation Sample Template LAMP_Multi_AZ: Create a highly available, scalable LAMP stack with an Amazon RDS database instance for the backend data store. This template demonstrates using the AWS CloudFormation bootstrap scripts to install the packages and files necessary to deploy the Apache web server and PHP at instance launch time. **WARNING** This template creates one or more Amazon EC2 instances, an Elastic Load Balancer and an Amazon RDS DB instance. You will be billed for the AWS resources used if you create a stack from this template.",
+  "Description" : "AWS CloudFormation WebAppv3 deploys a simple PHP application with a MySQL backend and installs a CloudWatch Logs Agent on the EC2 instances",
 
   "Parameters" : {
     "OperatorEmail": {
@@ -23,62 +23,6 @@
       "ConstraintDescription" : "must be the name of an existing EC2 KeyPair."
     },
 
-    "DBName": {
-      "Default": "myDatabase",
-      "Description" : "MySQL database name",
-      "Type": "String",
-      "MinLength": "1",
-      "MaxLength": "64",
-      "AllowedPattern" : "[a-zA-Z][a-zA-Z0-9]*",
-      "ConstraintDescription" : "must begin with a letter and contain only alphanumeric characters."
-    },
-
-    "DBUser": {
-      "NoEcho": "true",
-      "Description" : "Username for MySQL database access",
-      "Type": "String",
-      "MinLength": "1",
-      "MaxLength": "16",
-      "AllowedPattern" : "[a-zA-Z][a-zA-Z0-9]*",
-      "ConstraintDescription" : "must begin with a letter and contain only alphanumeric characters."
-    },
-
-    "DBPassword": {
-      "NoEcho": "true",
-      "Description" : "Password for MySQL database access",
-      "Type": "String",
-      "MinLength": "8",
-      "MaxLength": "41",
-      "AllowedPattern" : "[a-zA-Z0-9]*",
-      "ConstraintDescription" : "must contain only alphanumeric characters."
-    },
-
-    "DBAllocatedStorage": {
-      "Default": "5",
-      "Description" : "The size of the database (Gb)",
-      "Type": "Number",
-      "MinValue": "5",
-      "MaxValue": "1024",
-      "ConstraintDescription" : "must be between 5 and 1024Gb."
-    },
-
-    "DBInstanceClass": {
-      "Description" : "The database instance type",
-      "Type": "String",
-      "Default": "db.t2.small",
-      "AllowedValues" : [ "db.t1.micro", "db.m1.small", "db.m1.medium", "db.m1.large", "db.m1.xlarge", "db.m2.xlarge", "db.m2.2xlarge", "db.m2.4xlarge", "db.m3.medium", "db.m3.large", "db.m3.xlarge", "db.m3.2xlarge", "db.m4.large", "db.m4.xlarge", "db.m4.2xlarge", "db.m4.4xlarge", "db.m4.10xlarge", "db.r3.large", "db.r3.xlarge", "db.r3.2xlarge", "db.r3.4xlarge", "db.r3.8xlarge", "db.m2.xlarge", "db.m2.2xlarge", "db.m2.4xlarge", "db.cr1.8xlarge", "db.t2.micro", "db.t2.small", "db.t2.medium", "db.t2.large"]
-,
-      "ConstraintDescription" : "must select a valid database instance type."
-    },
-
-    "MultiAZDatabase": {
-      "Default": "false",
-      "Description" : "Create a Multi-AZ MySQL Amazon RDS database instance",
-      "Type": "String",
-      "AllowedValues" : [ "true", "false" ],
-      "ConstraintDescription" : "must be either true or false."
-    },
-
     "WebServerCapacity": {
       "Default": "2",
       "Description" : "The initial nuber of WebServer instances",
@@ -92,7 +36,7 @@
       "Description" : "WebServer EC2 instance type",
       "Type" : "String",
       "Default" : "t2.small",
-      "AllowedValues" : [ "t1.micro", "t2.nano", "t2.micro", "t2.small", "t2.medium", "t2.large", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "m3.medium", "m3.large", "m3.xlarge", "m3.2xlarge", "m4.large", "m4.xlarge", "m4.2xlarge", "m4.4xlarge", "m4.10xlarge", "c1.medium", "c1.xlarge", "c3.large", "c3.xlarge", "c3.2xlarge", "c3.4xlarge", "c3.8xlarge", "c4.large", "c4.xlarge", "c4.2xlarge", "c4.4xlarge", "c4.8xlarge", "g2.2xlarge", "g2.8xlarge", "r3.large", "r3.xlarge", "r3.2xlarge", "r3.4xlarge", "r3.8xlarge", "i2.xlarge", "i2.2xlarge", "i2.4xlarge", "i2.8xlarge", "d2.xlarge", "d2.2xlarge", "d2.4xlarge", "d2.8xlarge", "hi1.4xlarge", "hs1.8xlarge", "cr1.8xlarge", "cc2.8xlarge", "cg1.4xlarge"],
+      "AllowedValues" : [ "t1.micro", "t2.nano", "t2.micro", "t2.small"],
       "ConstraintDescription" : "must be a valid EC2 instance type."
     },
     "SSHLocation" : {
@@ -163,62 +107,6 @@
       "cc2.8xlarge" : { "Arch" : "HVM64"  }
     },
 
-    "AWSInstanceType2NATArch" : {
-      "t1.micro"    : { "Arch" : "NATPV64"   },
-      "t2.nano"     : { "Arch" : "NATHVM64"  },
-      "t2.micro"    : { "Arch" : "NATHVM64"  },
-      "t2.small"    : { "Arch" : "NATHVM64"  },
-      "t2.medium"   : { "Arch" : "NATHVM64"  },
-      "t2.large"    : { "Arch" : "NATHVM64"  },
-      "m1.small"    : { "Arch" : "NATPV64"   },
-      "m1.medium"   : { "Arch" : "NATPV64"   },
-      "m1.large"    : { "Arch" : "NATPV64"   },
-      "m1.xlarge"   : { "Arch" : "NATPV64"   },
-      "m2.xlarge"   : { "Arch" : "NATPV64"   },
-      "m2.2xlarge"  : { "Arch" : "NATPV64"   },
-      "m2.4xlarge"  : { "Arch" : "NATPV64"   },
-      "m3.medium"   : { "Arch" : "NATHVM64"  },
-      "m3.large"    : { "Arch" : "NATHVM64"  },
-      "m3.xlarge"   : { "Arch" : "NATHVM64"  },
-      "m3.2xlarge"  : { "Arch" : "NATHVM64"  },
-      "m4.large"    : { "Arch" : "NATHVM64"  },
-      "m4.xlarge"   : { "Arch" : "NATHVM64"  },
-      "m4.2xlarge"  : { "Arch" : "NATHVM64"  },
-      "m4.4xlarge"  : { "Arch" : "NATHVM64"  },
-      "m4.10xlarge" : { "Arch" : "NATHVM64"  },
-      "c1.medium"   : { "Arch" : "NATPV64"   },
-      "c1.xlarge"   : { "Arch" : "NATPV64"   },
-      "c3.large"    : { "Arch" : "NATHVM64"  },
-      "c3.xlarge"   : { "Arch" : "NATHVM64"  },
-      "c3.2xlarge"  : { "Arch" : "NATHVM64"  },
-      "c3.4xlarge"  : { "Arch" : "NATHVM64"  },
-      "c3.8xlarge"  : { "Arch" : "NATHVM64"  },
-      "c4.large"    : { "Arch" : "NATHVM64"  },
-      "c4.xlarge"   : { "Arch" : "NATHVM64"  },
-      "c4.2xlarge"  : { "Arch" : "NATHVM64"  },
-      "c4.4xlarge"  : { "Arch" : "NATHVM64"  },
-      "c4.8xlarge"  : { "Arch" : "NATHVM64"  },
-      "g2.2xlarge"  : { "Arch" : "NATHVMG2"  },
-      "g2.8xlarge"  : { "Arch" : "NATHVMG2"  },
-      "r3.large"    : { "Arch" : "NATHVM64"  },
-      "r3.xlarge"   : { "Arch" : "NATHVM64"  },
-      "r3.2xlarge"  : { "Arch" : "NATHVM64"  },
-      "r3.4xlarge"  : { "Arch" : "NATHVM64"  },
-      "r3.8xlarge"  : { "Arch" : "NATHVM64"  },
-      "i2.xlarge"   : { "Arch" : "NATHVM64"  },
-      "i2.2xlarge"  : { "Arch" : "NATHVM64"  },
-      "i2.4xlarge"  : { "Arch" : "NATHVM64"  },
-      "i2.8xlarge"  : { "Arch" : "NATHVM64"  },
-      "d2.xlarge"   : { "Arch" : "NATHVM64"  },
-      "d2.2xlarge"  : { "Arch" : "NATHVM64"  },
-      "d2.4xlarge"  : { "Arch" : "NATHVM64"  },
-      "d2.8xlarge"  : { "Arch" : "NATHVM64"  },
-      "hi1.4xlarge" : { "Arch" : "NATHVM64"  },
-      "hs1.8xlarge" : { "Arch" : "NATHVM64"  },
-      "cr1.8xlarge" : { "Arch" : "NATHVM64"  },
-      "cc2.8xlarge" : { "Arch" : "NATHVM64"  }
-    }
-,
     "AWSRegionArch2AMI" : {
       "us-east-1"        : {"PV64" : "ami-22111148", "HVM64" : "ami-08111162", "HVMG2" : "ami-ebcec381"},
       "us-west-2"        : {"PV64" : "ami-792bc219", "HVM64" : "ami-c229c0a2", "HVMG2" : "ami-0f28c06f"},
@@ -394,7 +282,7 @@
         "AWS::CloudFormation::Init" : {
           "config" : {
             "packages" : {
-              "yum" : {
+              "yum": {
                 "httpd"     : [],
                 "php"       : [],
                 "php-mysql" : []
@@ -434,7 +322,9 @@
                   "    <?php\n",
                   "      // Print out the current data and tie\n",
                   "      print \"The Current Date and Time is: <br/>\";\n",
-                  "      print date(\"g:i A l, F j Y.\");\n",
+                  "      date_default_timezone_set('America/Los_Angeles');\n",
+                  "      $current_time = date(\"g:i A l, F j Y.\");\n",
+                  "      print $current_time;\n",
                   "    ?>\n",
                   "    <p/>\n",
                   "    <?php\n",
@@ -464,20 +354,8 @@
                   "      {\n",
                   "        print \"EC2 instance-id = \" . $instanceid . \"<br />\";\n",
                   "      }\n",
-                  "      $Database   = \"", {"Fn::GetAtt" : ["MySQLDatabase", "Endpoint.Address"]}, "\";\n",
-                  "      $DBUser     = \"", {"Ref" : "DBUser"}, "\";\n",
-                  "      $DBPassword = \"", {"Ref" : "DBPassword"}, "\";\n",
-                  "      print \"Database = \" . $Database . \"<br />\";\n",
-                  "      $dbconnection = mysql_connect($Database, $DBUser, $DBPassword)\n",
-                  "                      or die(\"Could not connect: \" . mysql_error());\n",
-                  "      print (\"Connected to $Database successfully\");\n",
-                  "      mysql_close($dbconnection);\n",
                   "    ?>\n",
-                  "    <h2>PHP Information</h2>\n",
                   "    <p/>\n",
-                  "    <?php\n",
-                  "      phpinfo();\n",
-                  "    ?>\n",
                   "  </body>\n",
                   "</html>\n"
                 ]]},
@@ -525,6 +403,7 @@
                           { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
         "InstanceType" : { "Ref" : "InstanceType" },
         "SecurityGroups" : [ {"Ref" : "WebServerSecurityGroup"} ],
+        "IamInstanceProfile": { "Ref": "LogRoleInstanceProfile" },
         "KeyName" : { "Ref" : "KeyName" },
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
              "#!/bin/bash -xe\n",
@@ -537,7 +416,7 @@
              "         --region ", { "Ref" : "AWS::Region" }, "\n",
 
             "# Start up the cfn-hup daemon to listen for changes to the EC2 instance metadata\n",
-                                "/opt/aws/bin/cfn-hup || error_exit 'Failed to start cfn-hup'\n",
+            "/opt/aws/bin/cfn-hup || error_exit 'Failed to start cfn-hup'\n",
                                 
             "# Get the CloudWatch Logs agent\n",
             "wget https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py\n",
@@ -655,55 +534,6 @@
           {"IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "SourceSecurityGroupId" : { "Ref" : "LoadBalancerSecurityGroup" } },
           {"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "SSHLocation"}}
         ]
-      }
-    },
-
-    "DBSecurityGroup": {
-       "Type": "AWS::RDS::DBSecurityGroup",
-      "Properties" : {
-        "GroupDescription": "Open database for access",
-        "EC2VpcId" : { 
-          "Fn::GetAtt" : [
-            "NetworkInfo",
-            "VPC"
-          ] 
-        },
-        "DBSecurityGroupIngress": { "EC2SecurityGroupId": { "Fn::GetAtt" : [ "WebServerSecurityGroup", "GroupId" ] } }
-      }
-    },
-    "DbSubnetGroup": {
-      "Type" : "AWS::RDS::DBSubnetGroup",
-      "Properties": {
-          "DBSubnetGroupDescription": "Subnets for RDS instance",
-          "SubnetIds":  [{ 
-            "Fn::GetAtt": [
-              "NetworkInfo",
-              "SubnetAPrivate"
-            ] 
-          }, 
-          {
-            "Fn::GetAtt": [
-                  "NetworkInfo",
-                  "SubnetBPrivate"
-            ] 
-        }]
-      }
-    },
-
-    "MySQLDatabase": {
-      "Type": "AWS::RDS::DBInstance",
-      "Properties": {
-        "Engine" : "MySQL",
-        "MultiAZ" : { "Ref": "MultiAZDatabase" },
-        "DBSubnetGroupName" : {"Ref": "DbSubnetGroup"},
-        "DBName" : { "Ref": "DBName" },
-        "MasterUsername": { "Ref": "DBUser" },
-        "MasterUserPassword": { "Ref" : "DBPassword" },
-        "DBInstanceClass": { "Ref" : "DBInstanceClass" },
-        "AllocatedStorage": { "Ref" : "DBAllocatedStorage" },
-        "DBSecurityGroups": [{
-          "Ref": "DBSecurityGroup"
-        }]
       }
     },
 
