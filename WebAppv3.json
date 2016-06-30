@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "AWS CloudFormation WebAppv3 deploys a simple PHP application with a MySQL backend and installs a CloudWatch Logs Agent on the EC2 instances",
+  "Description" : "AWS CloudFormation WebAppv3 deploys a simple PHP application and installs a CloudWatch Logs Agent on the EC2 instances",
 
   "Parameters" : {
     "OperatorEmail": {
