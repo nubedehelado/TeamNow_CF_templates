@@ -282,6 +282,10 @@
                 "echo 'deb https://apt.dockerproject.org/repo ubuntu-trusty main' >>/etc/apt/sources.list.d/docker.list\n",
                 "apt-get update\n",
                 "apt-get -y install docker-engine\n",
+                "adduser --disabled-password --gecos 'Docker Lab Student' student\n",
+                "echo 'student:docker' | chpasswd \n",
+                "usermod -aG sudo student\n",
+                "usermod -aG docker student\n",
                 "service docker start\n\n"
               ]]
           }
@@ -311,6 +315,10 @@
                 "echo 'deb https://apt.dockerproject.org/repo ubuntu-trusty main' >>/etc/apt/sources.list.d/docker.list\n",
                 "apt-get update\n",
                 "apt-get -y install docker-engine\n",
+                "adduser --disabled-password --gecos 'Docker Lab Student' student\n",
+                "echo 'student:docker' | chpasswd \n",
+                "usermod -aG sudo student\n",
+                "usermod -aG docker student\n",
                 "service docker start\n\n"
               ]]
           }
@@ -340,6 +348,10 @@
                     "echo 'deb https://apt.dockerproject.org/repo ubuntu-trusty main' >>/etc/apt/sources.list.d/docker.list\n",
                     "apt-get update\n",
                     "apt-get -y install docker-engine\n",
+                    "adduser --disabled-password --gecos 'Docker Lab Student' student\n",
+                    "echo 'student:docker' | chpasswd \n",
+                    "usermod -aG sudo student\n",
+                    "usermod -aG docker student\n",
                     "service docker start\n\n"
                   ]]
               }
