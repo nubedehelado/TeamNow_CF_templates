@@ -244,13 +244,13 @@
     "myVPC": {
       "Type": "AWS::EC2::VPC",
       "Properties": {
-        "CidrBlock": "10.0.0.0/16",
+        "CidrBlock": "10.13.0.0/16",
         "EnableDnsSupport": true,
         "EnableDnsHostnames": true,
         "InstanceTenancy": "default",
         "Tags": [{
           "Key": "Name",
-          "Value": "10.0.0.0/16"
+          "Value": "10.13.0.0/16"
         }]
       }
     },
@@ -259,7 +259,7 @@
       "Properties": {
         "Tags": [{
           "Key": "Name",
-          "Value": "10.0.0.0/16"
+          "Value": "10.13.0.0/16"
         }]
       }
     },
@@ -304,7 +304,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "AvailabilityZone": {"Fn::Select": ["0", {"Fn::GetAZs": ""}]},
-        "CidrBlock": "10.0.0.0/20",
+        "CidrBlock": "10.13.0.0/20",
         "MapPublicIpOnLaunch": true,
         "VpcId": {"Ref": "myVPC"},
         "Tags": [{
@@ -320,7 +320,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "AvailabilityZone": {"Fn::Select": ["0", {"Fn::GetAZs": ""}]},
-        "CidrBlock": "10.0.16.0/20",
+        "CidrBlock": "10.13.16.0/20",
         "VpcId": {"Ref": "myVPC"},
         "Tags": [{
           "Key": "Name",
@@ -335,7 +335,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "AvailabilityZone": {"Fn::Select": ["1", {"Fn::GetAZs": ""}]},
-        "CidrBlock": "10.0.32.0/20",
+        "CidrBlock": "10.13.32.0/20",
         "MapPublicIpOnLaunch": true,
         "VpcId": {"Ref": "myVPC"},
         "Tags": [{
@@ -351,7 +351,7 @@
       "Type": "AWS::EC2::Subnet",
       "Properties": {
         "AvailabilityZone": {"Fn::Select": ["1", {"Fn::GetAZs": ""}]},
-        "CidrBlock": "10.0.48.0/20",
+        "CidrBlock": "10.13.48.0/20",
         "VpcId": {"Ref": "myVPC"},
         "Tags": [{
           "Key": "Name",
