@@ -286,6 +286,7 @@
                 "echo 'student:docker' | chpasswd \n",
                 "usermod -aG sudo student\n",
                 "usermod -aG docker student\n",
+                "cp -pr ~ubuntu/.ssh ~student; chown -R student:student ~student/.ssh\n"
                 "service docker start\n\n"
               ]]
           }
@@ -319,6 +320,7 @@
                 "echo 'student:docker' | chpasswd \n",
                 "usermod -aG sudo student\n",
                 "usermod -aG docker student\n",
+                "cp -pr ~ubuntu/.ssh ~student; chown -R student:student ~student/.ssh\n"
                 "service docker start\n\n"
               ]]
           }
@@ -352,6 +354,7 @@
                     "echo 'student:docker' | chpasswd \n",
                     "usermod -aG sudo student\n",
                     "usermod -aG docker student\n",
+                    "cp -pr ~ubuntu/.ssh ~student; chown -R student:student ~student/.ssh\n"
                     "service docker start\n\n"
                   ]]
               }
